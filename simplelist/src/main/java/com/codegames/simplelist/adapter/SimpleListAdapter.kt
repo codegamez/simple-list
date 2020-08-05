@@ -3,10 +3,17 @@ package com.codegames.simplelist.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.MarginLayoutParams
 import androidx.recyclerview.widget.RecyclerView
+import com.chauthai.swipereveallayout.SwipeRevealLayout
+import com.chauthai.swipereveallayout.ViewBinderHelper
 import com.codegames.simplelist.SimpleListConfig
 import com.codegames.simplelist.type.ArrayInterface
+import com.codegames.simplelist.util.MyViewHolder
 import com.codegames.simplelist.util.toInt
+import kotlinx.android.synthetic.main.swipe_revieal_layout_same_level.view.*
+import org.apache.commons.lang3.ObjectUtils
+
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 class SimpleListAdapter<R, T>(
@@ -14,21 +21,77 @@ class SimpleListAdapter<R, T>(
     val config: SimpleListConfig<R, T>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private val viewBinderHelper = ViewBinderHelper().apply {
+        setOpenOnlyOne(true)
+    }
+
+    var activatedSwipe = -1
+        private set
+
     val data = _data.data
 
     companion object {
-        const val TYPE_HEADER = 1
-        const val TYPE_ITEM = 2
-        const val TYPE_FOOTER = 3
+        const val TYPE_HEADER = -1000
+        const val TYPE_ITEM = -1001
+        const val TYPE_FOOTER = -1003
+    }
+
+    private fun createItemView(parent: ViewGroup, itemRes: Int, swipeRes: Int?): View {
+        val container = LayoutInflater.from(parent.context)
+            .inflate(
+                if(config.swipeMode == SwipeRevealLayout.MODE_SAME_LEVEL)
+                    com.codegames.simplelist.R.layout.swipe_revieal_layout_same_level
+                else
+                    com.codegames.simplelist.R.layout.swipe_revieal_layout_normal,
+                parent,
+                false
+            ) as SwipeRevealLayout
+        container.dragEdge = config.swipeDragEdge
+        val itemContainer = container.swipe_reveal_layout_main
+        val itemView = LayoutInflater.from(itemContainer.context)
+            .inflate(itemRes, itemContainer, false)
+
+        var lp = itemView.layoutParams
+        if (lp is MarginLayoutParams) {
+            lp.setMargins(0, 0, 0, 0)
+        }
+        itemContainer.layoutParams = lp
+        container.layoutParams = lp
+
+        itemContainer.addView(itemView, itemView.layoutParams)
+
+        if (swipeRes != null) {
+            val secondaryContainer = container.swipe_reveal_layout_secondary
+            val secondaryView = LayoutInflater.from(secondaryContainer.context)
+                .inflate(swipeRes, secondaryContainer, false)
+
+            lp = secondaryView.layoutParams
+            if (lp is MarginLayoutParams) {
+                lp.setMargins(0, 0, 0, 0)
+            }
+            secondaryContainer.layoutParams = lp
+
+            secondaryContainer.addView(secondaryView)
+        }
+
+        return container
+    }
+
+    override fun getItemId(position: Int): Long {
+        val p = getItemPosition(position)
+        return config.getItemId?.invoke(p) ?: super.getItemId(p)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int)
             : RecyclerView.ViewHolder {
         when (viewType) {
             TYPE_ITEM -> {
-                config.itemLayout!!
-                val view = LayoutInflater.from(parent.context)
-                    .inflate(config.itemLayout!!, parent, false)
+                val view = if (config.swipeLayout == null) {
+                    LayoutInflater.from(parent.context)
+                        .inflate(config.itemLayout!!, parent, false)
+                } else {
+                    createItemView(parent, config.itemLayout!!, config.swipeLayout)
+                }
                 return SimpleItemViewHolder(view, this)
             }
             TYPE_HEADER -> {
@@ -43,7 +106,6 @@ class SimpleListAdapter<R, T>(
             }
             else -> throw Throwable("Wrong view type ($viewType)")
         }
-
 
     }
 
@@ -66,15 +128,33 @@ class SimpleListAdapter<R, T>(
         }
     }
 
+    fun handleItem(holder: SimpleItemViewHolder<R, T>, position: Int) {
+        val item = getItem(position)
+        if (config.swipeLayout == null) {
+            config.itemBind?.invoke(holder.rootView, item, position)
+        } else {
+            val rootView = holder.rootView as SwipeRevealLayout
+            viewBinderHelper.bind(
+                rootView,
+                ObjectUtils.identityToString(item)
+            )
+            config.swipeBind?.invoke(holder.swipeView!!, item, position)
+            config.itemBind?.invoke(holder.itemView, item, position)
+        }
+    }
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
-            TYPE_ITEM -> config.itemBind?.invoke(holder.itemView, getItem(position), position)
+            TYPE_ITEM -> {
+                @Suppress("UNCHECKED_CAST")
+                handleItem(holder as SimpleItemViewHolder<R, T>, position)
+            }
             TYPE_HEADER -> config.headerBind?.invoke(holder.itemView)
             TYPE_FOOTER -> config.footerBind?.invoke(holder.itemView)
         }
     }
 
-    private fun getItemPosition(position: Int): Int {
+    fun getItemPosition(position: Int): Int {
         return position - (config.headerLayout != null).toInt()
     }
 
@@ -143,17 +223,43 @@ class SimpleListAdapter<R, T>(
         notifyItemChanged(position2)
     }
 
+    fun activateMenu(position: Int, notify: Boolean = true) {
+        val oldPosition = activatedSwipe
+        activatedSwipe = position
+        if (oldPosition >= 0) {
+            if (notify)
+                notifyItemChanged(oldPosition)
+        } else if (position >= 0) {
+            if (notify)
+                notifyItemChanged(position)
+        }
+    }
+
 }
+
 
 @Suppress("unused")
 class SimpleItemViewHolder<R, T>(
     itemView: View,
     private val adapter: SimpleListAdapter<R, T>
-) : RecyclerView.ViewHolder(itemView) {
+) : MyViewHolder(itemView) {
 
+    @Suppress("MemberVisibilityCanBePrivate")
     fun getItem(position: Int): T {
         return adapter.getItem(position)
     }
+
+    val rootView get() = super.itemView
+
+    val itemView
+        get() = (rootView as? ViewGroup)
+            ?.findViewById<ViewGroup>(com.codegames.simplelist.R.id.swipe_reveal_layout_main)
+            ?.getChildAt(0) ?: rootView
+
+    val swipeView: View?
+        get() = (rootView as? ViewGroup)
+            ?.findViewById<ViewGroup>(com.codegames.simplelist.R.id.swipe_reveal_layout_secondary)
+            ?.getChildAt(0)
 
     val item get() = getItem(adapterPosition)
 
@@ -161,10 +267,12 @@ class SimpleItemViewHolder<R, T>(
         adapter.config.itemHolder?.invoke(this)
     }
 
-    fun bind(bind: ((item: T, position: Int) -> Unit)?) {
-        adapter.config.itemBind = { _, i, p ->
-            bind?.invoke(i, p)
-        }
+    fun bind(bind: ((view: View, item: T, position: Int) -> Unit)?) {
+        adapter.config.itemBind = bind
+    }
+
+    fun swipeBind(bind: ((view: View, item: T, position: Int) -> Unit)?) {
+        adapter.config.swipeBind = bind
     }
 
 }

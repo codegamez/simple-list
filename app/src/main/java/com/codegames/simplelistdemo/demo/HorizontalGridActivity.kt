@@ -8,11 +8,10 @@ import androidx.core.view.updateLayoutParams
 import com.codegames.simplelist.simple
 import com.codegames.simplelistdemo.*
 import kotlinx.android.synthetic.main.activity_all.*
-import kotlinx.android.synthetic.main.header_view.view.*
 import kotlinx.android.synthetic.main.item_view_g.view.*
 
 @SuppressLint("SetTextI18n")
-class HorizontalListActivity : AppCompatActivity() {
+class HorizontalGridActivity : AppCompatActivity() {
 
     private val items = mutableListOf<ItemModel>()
 
@@ -23,7 +22,7 @@ class HorizontalListActivity : AppCompatActivity() {
             height = ViewGroup.LayoutParams.WRAP_CONTENT
         }
         items.addAll(fetchData(0))
-        title = "Horizontal List"
+        title = "Horizontal Grid"
         btnBack.setOnClickListener { finish() }
         setupList()
     }
@@ -31,7 +30,7 @@ class HorizontalListActivity : AppCompatActivity() {
     private fun setupList() = recyclerView.simple(items) {
 
         itemMargin(16)
-        rows = 1
+        rows = 2
 
         itemHolder(R.layout.item_view_g) {
 
@@ -45,8 +44,8 @@ class HorizontalListActivity : AppCompatActivity() {
 
             bind { v, item, _ ->
                 v.ivg_tvTitle.text = item.title
-                v.ivg_ivImage.setBackgroundColor(item.color)
                 v.ivg_ivImage.setImageResource(item.imageRes)
+                v.ivg_ivImage.setBackgroundColor(item.color)
             }
 
         }

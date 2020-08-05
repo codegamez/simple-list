@@ -20,6 +20,9 @@
         <activity android:name=".demo.VerticalListActivity" />
         <activity android:name=".demo.HorizontalListActivity" />
         <activity android:name=".demo.VerticalGridActivity" />
+        <activity android:name=".demo.HorizontalGridActivity" />
+        <activity android:name=".demo.ViewPagerActivity" />
+        <activity android:name=".demo.SwipeMenuActivity" />
     </application>
 
 </manifest>

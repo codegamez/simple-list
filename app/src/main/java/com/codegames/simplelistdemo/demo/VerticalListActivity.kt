@@ -8,7 +8,6 @@ import com.codegames.simplelistdemo.*
 import kotlinx.android.synthetic.main.activity_all.*
 import kotlinx.android.synthetic.main.footer_view.view.*
 import kotlinx.android.synthetic.main.header_view.view.*
-import kotlinx.android.synthetic.main.item_view_h.view.*
 import kotlinx.android.synthetic.main.item_view_v.view.*
 
 @SuppressLint("SetTextI18n")
@@ -20,7 +19,7 @@ class VerticalListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_all)
         items.addAll(fetchData(0))
-        title = "Demo"
+        title = "Vertical List"
         btnBack.setOnClickListener { finish() }
         setupList()
     }
@@ -30,7 +29,7 @@ class VerticalListActivity : AppCompatActivity() {
         // enableDivider = true
         columns = 1
 
-        itemMargin(8)
+        itemMargin(16)
 
         headerBind(R.layout.header_view) {
             it.hv_tvTitle.text = "Demo 1"
@@ -46,12 +45,12 @@ class VerticalListActivity : AppCompatActivity() {
                 toast("Item $adapterPosition action 2 clicked")
             }
 
-            bind { item, _ ->
-                itemView.ivv_tvTitle.text = item.title
-                itemView.ivv_tvSubtitle.text = item.subtitile
-                itemView.ivv_tvBody.text = item.body
-                itemView.ivv_ivImage.setBackgroundColor(item.color)
-                itemView.ivv_ivImage.setImageResource(item.imageRes)
+            bind { v, item, _ ->
+                v.ivv_tvTitle.text = item.title
+                v.ivv_tvSubtitle.text = item.subtitile
+                v.ivv_tvBody.text = item.body
+                v.ivv_ivImage.setBackgroundColor(item.color)
+                v.ivv_ivImage.setImageResource(item.imageRes)
             }
 
         }

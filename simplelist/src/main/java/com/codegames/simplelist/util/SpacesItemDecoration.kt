@@ -132,7 +132,7 @@ internal class SimpleSpaceItemDecoration<R, T>(
             else
                 (top + bottom) / 2F
             fBottom =
-                if (verticalOuter && itemPosition in  itemCount - horizontalItemCount until horizontalItemCount)
+                if (verticalOuter && itemPosition in  itemCount - horizontalItemCount until itemCount)
                     (top + bottom).toFloat()
                 else
                     (top + bottom) / 2F

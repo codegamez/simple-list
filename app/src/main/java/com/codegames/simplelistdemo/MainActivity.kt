@@ -5,9 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.codegames.simplelist.simple
-import com.codegames.simplelistdemo.demo.HorizontalListActivity
-import com.codegames.simplelistdemo.demo.VerticalGridActivity
-import com.codegames.simplelistdemo.demo.VerticalListActivity
+import com.codegames.simplelistdemo.demo.*
 import kotlinx.android.synthetic.main.activity_all.*
 import kotlinx.android.synthetic.main.item_list.view.*
 
@@ -15,11 +13,12 @@ import kotlinx.android.synthetic.main.item_list.view.*
 class MainActivity : AppCompatActivity() {
 
     private val demoList = arrayOf(
-        ItemModel("Demo 1", "vertical list", VerticalListActivity::class.java),
-        ItemModel("Demo 2", "horizontal list", HorizontalListActivity::class.java),
-        ItemModel("Demo 3", "vertical grid", VerticalGridActivity::class.java),
-        ItemModel("Demo 4", "horizontal grid", VerticalListActivity::class.java),
-        ItemModel("Demo 5", "view pager mode", VerticalListActivity::class.java)
+        ItemModel("Vertical List", "demo 1", VerticalListActivity::class.java),
+        ItemModel("Horizontal List", "demo 2", HorizontalListActivity::class.java),
+        ItemModel("Vertical Grid", "demo 3", VerticalGridActivity::class.java),
+        ItemModel("Horizontal Grid", "demo 4", HorizontalGridActivity::class.java),
+        ItemModel("View Pager", "demo 5", ViewPagerActivity::class.java),
+        ItemModel("Swipe Menu", "demo 6", SwipeMenuActivity::class.java)
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,9 +40,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            bind { item, position ->
-                itemView.il_tvTitle.text = item.title
-                itemView.il_tvSubtitle.text = item.subtitle
+            bind { v, item, _ ->
+                v.il_tvTitle.text = item.title
+                v.il_tvSubtitle.text = item.subtitle
             }
 
         }

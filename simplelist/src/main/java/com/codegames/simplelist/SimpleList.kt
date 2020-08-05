@@ -9,6 +9,7 @@ import com.codegames.simplelist.util.SimpleSpaceItemDecoration
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import java.lang.Integer.max
 
+
 typealias ConfigClosure<R, T> = SimpleListConfig<R, T>.() -> Unit
 
 // -------------
@@ -80,12 +81,22 @@ private fun <R, T> RecyclerView.simpleListInter(
                 isEqual = true,
                 columns = c.columns,
                 rows = c.rows,
-                verticalOuter = c.verticalItemOuterMargin,
-                horizontalOuter = c.horizontalItemOuterMargin,
+                verticalOuter = true,
+                horizontalOuter = true,
                 config = c
             )
         )
     }
+
+    setPadding(
+        c.padding.left,
+        c.padding.top,
+        c.padding.right,
+        c.padding.bottom
+    )
+
+    c.clipToPadding?.let { clipToPadding = it }
+    c.clipChildren?.let { clipChildren = it }
 
     val layoutManager: RecyclerView.LayoutManager
 
