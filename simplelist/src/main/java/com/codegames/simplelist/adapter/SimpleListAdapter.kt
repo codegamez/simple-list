@@ -25,9 +25,6 @@ class SimpleListAdapter<R, T>(
         setOpenOnlyOne(true)
     }
 
-    var activatedSwipe = -1
-        private set
-
     val data = _data.data
 
     companion object {
@@ -223,18 +220,6 @@ class SimpleListAdapter<R, T>(
         notifyItemChanged(position2)
     }
 
-    fun activateMenu(position: Int, notify: Boolean = true) {
-        val oldPosition = activatedSwipe
-        activatedSwipe = position
-        if (oldPosition >= 0) {
-            if (notify)
-                notifyItemChanged(oldPosition)
-        } else if (position >= 0) {
-            if (notify)
-                notifyItemChanged(position)
-        }
-    }
-
 }
 
 
@@ -284,7 +269,6 @@ class SimpleHeaderViewHolder<R, T>(
 ) : RecyclerView.ViewHolder(itemView) {
 
     init {
-
         adapter.config.headerHolder?.invoke(this)
     }
 

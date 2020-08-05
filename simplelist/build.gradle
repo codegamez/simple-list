@@ -1,14 +1,16 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+
 android {
+    defaultPublishConfig 'release' // todo: comment for developing
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName "0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
@@ -21,6 +23,23 @@ android {
         }
     }
 
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
+    }
 }
 
 dependencies {
@@ -36,3 +55,33 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.11'
     implementation 'com.chauthai.swipereveallayout:swipe-reveal-layout:1.4.1'
 }
+
+ext {
+    bintrayRepo = 'simple-list'
+    bintrayName = 'simple-list'
+
+    libraryName = 'codegames'
+
+    publishedGroupId = 'com.codegames'
+    artifact = 'simplelist'
+    libraryVersion = android.defaultConfig.versionName
+
+    libraryDescription = 'simple recyclerview setup for android with kotlin dsl'
+    siteUrl = 'https://github.com/shahab-yousefi/simple-list'
+    gitUrl = 'https://github.com/shahab-yousefi/simple-list.git'
+
+    developerId = 'codegames'
+    developerName = 'Shahab Yousefi'
+    developerEmail = 'shahab_yousefi@live.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
+tasks.withType(Javadoc).all {
+    enabled = false
+}
+
+apply from: 'install.gradle'
+apply from: 'bintray.gradle'

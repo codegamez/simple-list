@@ -12,3 +12,7 @@
 /captures
 .externalNativeBuild
 .cxx
+simplelist/.env
+/secure.properties
+secure.properties
+

@@ -34,6 +34,10 @@ class HorizontalGridActivity : AppCompatActivity() {
 
         itemHolder(R.layout.item_view_g) {
 
+            itemMargin(1)
+            itemHorizontalMargin(2)
+            itemVerticalMargin(2)
+
             itemView.updateLayoutParams {
                 width = 170 * density
             }

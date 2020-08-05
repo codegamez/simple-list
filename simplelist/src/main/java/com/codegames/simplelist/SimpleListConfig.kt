@@ -10,8 +10,15 @@ import com.codegames.simplelist.adapter.SimpleHeaderViewHolder
 import com.codegames.simplelist.adapter.SimpleItemViewHolder
 import com.codegames.simplelist.adapter.SimpleListAdapter
 
-@Suppress("MemberVisibilityCanBePrivate", "unused")
+@Suppress("MemberVisibilityCanBePrivate", "unused", "PropertyName")
 class SimpleListConfig<R, T>(var context: Context? = null) {
+
+    val SWIPE_MODE_NORMAL= SwipeRevealLayout.MODE_NORMAL
+    val SWIPE_MODE_SAME_LEVEL = SwipeRevealLayout.MODE_SAME_LEVEL
+    val SWIPE_DRAG_EDGE_TOP = SwipeRevealLayout.DRAG_EDGE_TOP
+    val SWIPE_DRAG_EDGE_RIGHT = SwipeRevealLayout.DRAG_EDGE_RIGHT
+    val SWIPE_DRAG_EDGE_BOTTOM = SwipeRevealLayout.DRAG_EDGE_BOTTOM
+    val SWIPE_DRAG_EDGE_LEFT = SwipeRevealLayout.DRAG_EDGE_LEFT
 
     private val density get() = context?.resources?.displayMetrics?.density?.toInt() ?: 1
 

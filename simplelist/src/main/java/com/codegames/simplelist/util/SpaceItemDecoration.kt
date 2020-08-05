@@ -17,8 +17,7 @@ internal class SimpleSpaceItemDecoration<R, T>(
     val isEqual: Boolean,
     val verticalOuter: Boolean,
     val horizontalOuter: Boolean,
-    val config: SimpleListConfig<R, T>,
-    tag: String? = null
+    val config: SimpleListConfig<R, T>
 ) : RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(
