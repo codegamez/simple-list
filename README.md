@@ -229,61 +229,61 @@ is adapter of the recyclerview
 
 ---
 
-**`adabter.getItemPosition(position)`**
+**`adapter.getItemPosition(position)`**
 
 convert adapter position to item position
 
 ---
 
-**`adabter.getItem(position)`**
+**`adapter.getItem(position)`**
 
 receive adapterPosition and return item from dataset that is in itemPosition
 
 ---
 
-**`adabter.removeItem(position)`**
+**`adapter.removeItem(position)`**
 
 receive adapterPosition and delete item from dataset that is in itemPosition and update adapter
 
 ---
 
-**`adabter.removeItemRange(positionStart, itemCount)`**
+**`adapter.removeItemRange(positionStart, itemCount)`**
 
 remove range of items and update adapter
 
 ---
 
-**`adabter.addItemRange(positionStart, items)`**
+**`adapter.addItemRange(positionStart, items)`**
 
 add range of items and update adapter
 
 ---
 
-**`adabter.addItemRange(items)`**
+**`adapter.addItemRange(items)`**
 
 add range of items to end of the list and update adapter
 
 ---
 
-**`adabter.addItem(position, item)`**
+**`adapter.addItem(position, item)`**
 
 add item to position of the list and update adapter
 
 ---
 
-**`adabter.addItem(item)`**
+**`adapter.addItem(item)`**
 
 add item to end of the list and update adapter
 
 ---
 
-**`adabter.setItem(item)`**
+**`adapter.setItem(item)`**
 
 set item to position of the list and update adapter
 
 ---
 
-**`adabter.swipeItem(position1, position2)`**
+**`adapter.swipeItem(position1, position2)`**
 
 replace items in two positions and update adapter
 
