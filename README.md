@@ -7,6 +7,19 @@ simple recyclerview setup for android with kotlin dsl
 * no need for create multiple classes for adapter or viewholder
 * simply use different snaps
 
+## Importing the library
+add the following lines to your app module build.gradle
+
+```gradle
+repositories {
+    maven { url  "https://dl.bintray.com/codegames/simple-list" }
+}
+dependencies {
+    implementation 'com.github.rubensousa:gravitysnaphelper:2.2.0'
+    implementation 'com.chauthai.swipereveallayout:swipe-reveal-layout:1.4.1'
+    implementation 'com.codegames:simplelist:0.15'
+}
+```
 
 ## Examples
 For see a demo you can clone this project, build and run it
