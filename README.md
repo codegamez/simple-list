@@ -15,9 +15,7 @@ repositories {
     maven { url  "https://dl.bintray.com/codegames/simple-list" }
 }
 dependencies {
-    implementation 'com.github.rubensousa:gravitysnaphelper:2.2.0'
-    implementation 'com.chauthai.swipereveallayout:swipe-reveal-layout:1.4.1'
-    implementation 'com.codegames:simplelist:0.15'
+    implementation 'com.codegames:simplelist:0.17'
 }
 ```
 
