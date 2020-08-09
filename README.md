@@ -11,9 +11,6 @@ simple recyclerview setup for android with kotlin dsl
 add the following lines to your app module build.gradle
 
 ```gradle
-repositories {
-    maven { url  "https://dl.bintray.com/codegames/simple-list" }
-}
 dependencies {
     implementation 'com.codegames:simplelist:0.17'
 }
