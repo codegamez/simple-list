@@ -39,6 +39,7 @@ class VerticalListActivity : AppCompatActivity() {
 
             itemView.ivv_btnAction1.setOnClickListener {
                 toast("Item $adapterPosition action 1 clicked")
+                adapter.removeItem(adapterPosition)
             }
 
             itemView.ivv_btnAction2.setOnClickListener {

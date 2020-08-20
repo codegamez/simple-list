@@ -3,67 +3,25 @@
 package com.codegames.simplelist
 
 import androidx.recyclerview.widget.*
-import com.codegames.simplelist.adapter.SimpleListAdapter
-import com.codegames.simplelist.type.*
+import com.codegames.simplelist.adapter.SimpleAdapter
 import com.codegames.simplelist.util.SimpleSpaceItemDecoration
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import java.lang.Integer.max
 
-
-typealias ConfigClosure<R, T> = SimpleListConfig<R, T>.() -> Unit
-
 // -------------
 
-fun <T> RecyclerView.simple(data: List<T>, config: ConfigClosure<List<T>, T>) {
+fun <T> RecyclerView.simple(data: List<T>, config: SimpleConf<T>.() -> Unit) {
     simpleListInter(data, config)
-}
-
-fun <T> RecyclerView.simple(data: Array<T>, config: ConfigClosure<Array<T>, T>) {
-    simpleListInter(data, config)
-}
-
-fun <T> RecyclerView.simple(data: ArrayList<T>, config: ConfigClosure<ArrayList<T>, T>) {
-    simpleListInter(data, config)
-}
-
-// --------------------
-
-private fun <T> RecyclerView.simpleListInter(
-    data: Array<T>,
-    config: ConfigClosure<Array<T>, T>
-) {
-    val a = ArrayType(data)
-    simpleListInter(a, config)
-}
-
-private fun <T> RecyclerView.simpleListInter(
-    data: List<T>,
-    config: ConfigClosure<List<T>, T>
-) {
-    @Suppress("UNCHECKED_CAST")
-    if (data is MutableList) {
-        config as ConfigClosure<MutableList<T>, T>
-        simpleListInter(MutableListType(data), config)
-    } else
-        simpleListInter(ListType(data), config)
-}
-
-private fun <T> RecyclerView.simpleListInter(
-    data: ArrayList<T>,
-    config: ConfigClosure<ArrayList<T>, T>
-) {
-    val a = ArrayListType(data)
-    simpleListInter(a, config)
 }
 
 // --------------------------------
 
-private fun <R, T> RecyclerView.simpleListInter(
-    data: ArrayInterface<R, T>,
-    config: SimpleListConfig<R, T>.() -> Unit
+private fun <T> RecyclerView.simpleListInter(
+    data: List<T>,
+    config: SimpleConf<T>.() -> Unit
 ) {
-    val c = SimpleListConfig<R, T>(context)
-    c.mAdapter = SimpleListAdapter(data, c)
+    val c = SimpleConf<T>(context)
+    c.mAdapter = SimpleAdapter(data, c)
     config(c)
 
     // item margin
@@ -106,12 +64,12 @@ private fun <R, T> RecyclerView.simpleListInter(
         layoutManager = if (c.columns > 1) {
             GridLayoutManager(
                 context, c.columns,
-                SimpleListConfig.VERTICAL, c.reverse
+                SimpleConf.VERTICAL, c.reverse
             )
         } else {
             GridLayoutManager(
                 context, c.rows,
-                SimpleListConfig.HORIZONTAL, c.reverse
+                SimpleConf.HORIZONTAL, c.reverse
             )
         }
 
@@ -119,8 +77,8 @@ private fun <R, T> RecyclerView.simpleListInter(
         layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 return when (adapter?.getItemViewType(position)) {
-                    SimpleListAdapter.TYPE_HEADER -> max(c.columns, c.rows)
-                    SimpleListAdapter.TYPE_FOOTER -> max(c.columns, c.rows)
+                    SimpleAdapter.TYPE_HEADER -> max(c.columns, c.rows)
+                    SimpleAdapter.TYPE_FOOTER -> max(c.columns, c.rows)
                     else -> 1
                 }
             }
@@ -128,15 +86,15 @@ private fun <R, T> RecyclerView.simpleListInter(
     }
     // horizontal view
     else if (c.rows == 1) {
-        layoutManager = LinearLayoutManager(context, SimpleListConfig.HORIZONTAL, c.reverse)
+        layoutManager = LinearLayoutManager(context, SimpleConf.HORIZONTAL, c.reverse)
         if (c.enableDivider)
-            addItemDecoration(DividerItemDecoration(context, SimpleListConfig.HORIZONTAL))
+            addItemDecoration(DividerItemDecoration(context, SimpleConf.HORIZONTAL))
     }
     // vertical view
     else {
-        layoutManager = LinearLayoutManager(context, SimpleListConfig.VERTICAL, c.reverse)
+        layoutManager = LinearLayoutManager(context, SimpleConf.VERTICAL, c.reverse)
         if (c.enableDivider)
-            addItemDecoration(DividerItemDecoration(context, SimpleListConfig.VERTICAL))
+            addItemDecoration(DividerItemDecoration(context, SimpleConf.VERTICAL))
     }
 
     when {

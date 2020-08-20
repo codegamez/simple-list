@@ -7,8 +7,7 @@ import android.view.ViewGroup.MarginLayoutParams
 import androidx.recyclerview.widget.RecyclerView
 import com.chauthai.swipereveallayout.SwipeRevealLayout
 import com.chauthai.swipereveallayout.ViewBinderHelper
-import com.codegames.simplelist.SimpleListConfig
-import com.codegames.simplelist.type.ArrayInterface
+import com.codegames.simplelist.SimpleConf
 import com.codegames.simplelist.util.MyViewHolder
 import com.codegames.simplelist.util.toInt
 import kotlinx.android.synthetic.main.swipe_revieal_layout_same_level.view.*
@@ -16,16 +15,14 @@ import org.apache.commons.lang3.ObjectUtils
 
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
-class SimpleListAdapter<R, T>(
-    private var _data: ArrayInterface<R, T>,
-    val config: SimpleListConfig<R, T>
+class SimpleAdapter<T>(
+    var data: List<T>,
+    val config: SimpleConf<T>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val viewBinderHelper = ViewBinderHelper().apply {
         setOpenOnlyOne(true)
     }
-
-    val data = _data.data
 
     companion object {
         const val TYPE_HEADER = -1000
@@ -89,17 +86,17 @@ class SimpleListAdapter<R, T>(
                 } else {
                     createItemView(parent, config.itemLayout!!, config.swipeLayout)
                 }
-                return SimpleItemViewHolder(view, this)
+                return SimpleItemHolder(view, this)
             }
             TYPE_HEADER -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(config.headerLayout!!, parent, false)
-                return SimpleHeaderViewHolder(view, this)
+                return SimpleHeaderHolder(view, this)
             }
             TYPE_FOOTER -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(config.footerLayout!!, parent, false)
-                return SimpleFooterViewHolder(view, this)
+                return SimpleFooterHolder(view, this)
             }
             else -> throw Throwable("Wrong view type ($viewType)")
         }
@@ -109,23 +106,23 @@ class SimpleListAdapter<R, T>(
     override fun getItemViewType(position: Int): Int {
         return when {
             position == 0 && config.headerLayout != null -> TYPE_HEADER
-            position == _data.size && config.headerLayout == null -> TYPE_FOOTER
-            position == _data.size + 1 -> TYPE_FOOTER
+            position == data.size && config.headerLayout == null -> TYPE_FOOTER
+            position == data.size + 1 -> TYPE_FOOTER
             else -> TYPE_ITEM
         }
     }
 
     override fun getItemCount(): Int {
         return if (config.headerLayout == null && config.footerLayout == null) {
-            _data.size
+            data.size
         } else if (config.headerLayout != null && config.footerLayout != null) {
-            _data.size + 2
+            data.size + 2
         } else {
-            _data.size + 1
+            data.size + 1
         }
     }
 
-    fun handleItem(holder: SimpleItemViewHolder<R, T>, position: Int) {
+    fun handleItem(holder: SimpleItemHolder<T>, position: Int) {
         val item = getItem(position)
         if (config.swipeLayout == null) {
             config.itemBind?.invoke(holder.rootView, item, position)
@@ -144,7 +141,7 @@ class SimpleListAdapter<R, T>(
         when (getItemViewType(position)) {
             TYPE_ITEM -> {
                 @Suppress("UNCHECKED_CAST")
-                handleItem(holder as SimpleItemViewHolder<R, T>, position)
+                handleItem(holder as SimpleItemHolder<T>, position)
             }
             TYPE_HEADER -> config.headerBind?.invoke(holder.itemView)
             TYPE_FOOTER -> config.footerBind?.invoke(holder.itemView)
@@ -155,14 +152,18 @@ class SimpleListAdapter<R, T>(
         return position - (config.headerLayout != null).toInt()
     }
 
+    fun getAdapterPosition(position: Int): Int {
+        return position + (config.headerLayout != null).toInt()
+    }
+
     fun getItem(position: Int): T {
         val p = getItemPosition(position)
-        return _data[p]
+        return data[p]
     }
 
     fun removeItem(position: Int) {
         val p = getItemPosition(position)
-        _data.removeAt(p)
+        data.removeAt(p)
         notifyItemRemoved(position)
     }
 
@@ -170,44 +171,44 @@ class SimpleListAdapter<R, T>(
         val ps = getItemPosition(positionStart)
         val pe = ps + itemCount
         for (i in ps until pe)
-            _data.removeAt(i)
+            data.removeAt(i)
         notifyItemRangeRemoved(positionStart, itemCount)
+    }
+
+    fun removeAll() {
+        data.clear()
+        removeItemRange(getAdapterPosition(0), data.size)
     }
 
     fun addItemRange(positionStart: Int, items: Collection<T>) {
         val ps = getItemPosition(positionStart)
-        _data.addAll(ps, items)
-        notifyItemRangeInserted(positionStart, items.size)
-    }
-
-    fun addItemRange(positionStart: Int, items: Array<T>) {
-        val ps = getItemPosition(positionStart)
-        _data.addAll(ps, items)
+        data.addAll(ps, items)
         notifyItemRangeInserted(positionStart, items.size)
     }
 
     fun addItemRange(items: Collection<T>) {
-        addItemRange(_data.size + (config.headerLayout != null).toInt(), items)
-    }
-
-    fun addItemRange(items: Array<T>) {
-        addItemRange(_data.size + (config.headerLayout != null).toInt(), items)
+        addItemRange(getAdapterPosition(data.size), items)
     }
 
     fun addItem(position: Int, item: T) {
         val p = getItemPosition(position)
-        _data.add(p, item)
+        data.add(p, item)
         notifyItemInserted(position)
     }
 
     fun addItem(item: T) {
-        addItem(_data.lastIndex + (config.headerLayout != null).toInt(), item)
+        addItem(getAdapterPosition(data.lastIndex), item)
     }
 
     fun setItem(position: Int, item: T) {
         val p = getItemPosition(position)
-        _data[p] = item
+        data[p] = item
         notifyItemChanged(position)
+    }
+
+    fun replaceAll(items: Collection<T>) {
+        removeAll()
+        addItemRange(items)
     }
 
     fun swipeItem(position1: Int, position2: Int) {
@@ -222,11 +223,94 @@ class SimpleListAdapter<R, T>(
 
 }
 
+private operator fun <T> List<T>.set(index: Int, value: T) {
+    when (this) {
+        is ArrayList -> {
+            this[index] = value
+        }
+        is MutableList -> {
+            this[index] = value
+        }
+        else -> {
+            throw Throwable("List is not mutable")
+        }
+    }
+}
+
+private fun <T> List<T>.add(value: T) {
+    when (this) {
+        is ArrayList -> {
+            this.add(value)
+        }
+        is MutableList -> {
+            this.add(value)
+        }
+        else -> {
+            throw Throwable("List is not mutable")
+        }
+    }
+}
+
+private fun <T> List<T>.add(index: Int, value: T) {
+    when (this) {
+        is ArrayList -> {
+            this.add(index, value)
+        }
+        is MutableList -> {
+            this.add(index, value)
+        }
+        else -> {
+            throw Throwable("List is not mutable")
+        }
+    }
+}
+
+private fun <T> List<T>.addAll(index: Int, elements: Collection<T>) {
+    when (this) {
+        is ArrayList -> {
+            this.addAll(index, elements)
+        }
+        is MutableList -> {
+            this.addAll(index, elements)
+        }
+        else -> {
+            throw Throwable("List is not mutable")
+        }
+    }
+}
+
+private fun <T> List<T>.removeAt(index: Int) {
+    when (this) {
+        is ArrayList -> {
+            this.removeAt(index)
+        }
+        is MutableList -> {
+            this.removeAt(index)
+        }
+        else -> {
+            throw Throwable("List is not mutable")
+        }
+    }
+}
+
+private fun <T> List<T>.clear() {
+    when (this) {
+        is ArrayList -> {
+            this.clear()
+        }
+        is MutableList -> {
+            this.clear()
+        }
+        else -> {
+            throw Throwable("List is not mutable")
+        }
+    }
+}
 
 @Suppress("unused")
-class SimpleItemViewHolder<R, T>(
+class SimpleItemHolder<T>(
     itemView: View,
-    private val adapter: SimpleListAdapter<R, T>
+    private val adapter: SimpleAdapter<T>
 ) : MyViewHolder(itemView) {
 
     @Suppress("MemberVisibilityCanBePrivate")
@@ -263,9 +347,9 @@ class SimpleItemViewHolder<R, T>(
 }
 
 @Suppress("unused")
-class SimpleHeaderViewHolder<R, T>(
+class SimpleHeaderHolder<T>(
     itemView: View,
-    private val adapter: SimpleListAdapter<R, T>
+    private val adapter: SimpleAdapter<T>
 ) : RecyclerView.ViewHolder(itemView) {
 
     init {
@@ -278,9 +362,9 @@ class SimpleHeaderViewHolder<R, T>(
 }
 
 @Suppress("unused")
-class SimpleFooterViewHolder<R, T>(
+class SimpleFooterHolder<T>(
     itemView: View,
-    private val adapter: SimpleListAdapter<R, T>
+    private val adapter: SimpleAdapter<T>
 ) : RecyclerView.ViewHolder(itemView) {
 
     init {

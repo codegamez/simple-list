@@ -27,7 +27,7 @@ val colors = listOf(
 private const val bodyText =
     "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever"
 
-fun fetchData(start: Int): Array<ItemModel> {
+fun fetchData(start: Int): List<ItemModel> {
     val data = mutableListOf<ItemModel>()
     for (i in 1..10) {
         data += ItemModel(
@@ -38,7 +38,7 @@ fun fetchData(start: Int): Array<ItemModel> {
             colors[(start + i) % colors.size]
         )
     }
-    return data.toTypedArray()
+    return data.toList()
 }
 
 class ItemModel(

@@ -5,13 +5,13 @@ import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.chauthai.swipereveallayout.SwipeRevealLayout
-import com.codegames.simplelist.adapter.SimpleFooterViewHolder
-import com.codegames.simplelist.adapter.SimpleHeaderViewHolder
-import com.codegames.simplelist.adapter.SimpleItemViewHolder
-import com.codegames.simplelist.adapter.SimpleListAdapter
+import com.codegames.simplelist.adapter.SimpleFooterHolder
+import com.codegames.simplelist.adapter.SimpleHeaderHolder
+import com.codegames.simplelist.adapter.SimpleItemHolder
+import com.codegames.simplelist.adapter.SimpleAdapter
 
 @Suppress("MemberVisibilityCanBePrivate", "unused", "PropertyName")
-class SimpleListConfig<R, T>(var context: Context? = null) {
+open class SimpleConf<T>(var context: Context? = null) {
 
     val SWIPE_MODE_NORMAL= SwipeRevealLayout.MODE_NORMAL
     val SWIPE_MODE_SAME_LEVEL = SwipeRevealLayout.MODE_SAME_LEVEL
@@ -22,7 +22,7 @@ class SimpleListConfig<R, T>(var context: Context? = null) {
 
     private val density get() = context?.resources?.displayMetrics?.density?.toInt() ?: 1
 
-    internal var mAdapter: SimpleListAdapter<R, T>? = null
+    internal var mAdapter: SimpleAdapter<T>? = null
 
     val adapter get() = mAdapter!!
 
@@ -35,9 +35,9 @@ class SimpleListConfig<R, T>(var context: Context? = null) {
     var swipeDragEdge = SwipeRevealLayout.DRAG_EDGE_RIGHT
     var swipeMode = SwipeRevealLayout.MODE_NORMAL
 
-    internal var itemHolder: (SimpleItemViewHolder<R, T>.() -> Unit)? = null
-    internal var headerHolder: (SimpleHeaderViewHolder<R, T>.() -> Unit)? = null
-    internal var footerHolder: (SimpleFooterViewHolder<R, T>.() -> Unit)? = null
+    internal var itemHolder: (SimpleItemHolder<T>.() -> Unit)? = null
+    internal var headerHolder: (SimpleHeaderHolder<T>.() -> Unit)? = null
+    internal var footerHolder: (SimpleFooterHolder<T>.() -> Unit)? = null
 
     internal var swipeLayout: Int? = null
     internal var itemLayout: Int? = null
@@ -139,7 +139,7 @@ class SimpleListConfig<R, T>(var context: Context? = null) {
     fun itemHolder(
         itemLayout: Int,
         swipeLayout: Int? = null,
-        holder: (SimpleItemViewHolder<R, T>.() -> Unit)?
+        holder: (SimpleItemHolder<T>.() -> Unit)?
     ) {
         this.itemLayout = itemLayout
         this.swipeLayout = swipeLayout
@@ -148,7 +148,7 @@ class SimpleListConfig<R, T>(var context: Context? = null) {
 
     fun headerHolder(
         itemLayout: Int,
-        holder: (SimpleHeaderViewHolder<R, T>.() -> Unit)?
+        holder: (SimpleHeaderHolder<T>.() -> Unit)?
     ) {
         this.itemLayout = itemLayout
         this.headerHolder = holder
@@ -156,7 +156,7 @@ class SimpleListConfig<R, T>(var context: Context? = null) {
 
     fun footerHolder(
         itemLayout: Int,
-        holder: (SimpleFooterViewHolder<R, T>.() -> Unit)?
+        holder: (SimpleFooterHolder<T>.() -> Unit)?
     ) {
         this.itemLayout = itemLayout
         this.footerHolder = holder

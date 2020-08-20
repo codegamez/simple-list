@@ -9,10 +9,9 @@ import com.codegames.simplelistdemo.demo.*
 import kotlinx.android.synthetic.main.activity_all.*
 import kotlinx.android.synthetic.main.item_list.view.*
 
-
 class MainActivity : AppCompatActivity() {
 
-    private val demoList = arrayOf(
+    private val demoList = listOf(
         ItemModel("Vertical List", "demo 1", VerticalListActivity::class.java),
         ItemModel("Horizontal List", "demo 2", HorizontalListActivity::class.java),
         ItemModel("Vertical Grid", "demo 3", VerticalGridActivity::class.java),

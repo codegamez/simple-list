@@ -3,11 +3,11 @@ package com.codegames.simplelist.util
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import com.codegames.simplelist.SimpleListConfig
+import com.codegames.simplelist.SimpleConf
 import kotlin.math.ceil
 
 @Suppress("MemberVisibilityCanBePrivate")
-internal class SimpleSpaceItemDecoration<R, T>(
+internal class SimpleSpaceItemDecoration<T>(
     val left: Int,
     val top: Int,
     val right: Int,
@@ -17,7 +17,7 @@ internal class SimpleSpaceItemDecoration<R, T>(
     val isEqual: Boolean,
     val verticalOuter: Boolean,
     val horizontalOuter: Boolean,
-    val config: SimpleListConfig<R, T>
+    val config: SimpleConf<T>
 ) : RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(
