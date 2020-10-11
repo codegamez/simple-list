@@ -17,7 +17,8 @@ class MainActivity : AppCompatActivity() {
         ItemModel("Vertical Grid", "demo 3", VerticalGridActivity::class.java),
         ItemModel("Horizontal Grid", "demo 4", HorizontalGridActivity::class.java),
         ItemModel("View Pager", "demo 5", ViewPagerActivity::class.java),
-        ItemModel("Swipe Menu", "demo 6", SwipeMenuActivity::class.java)
+        ItemModel("Swipe Menu", "demo 6", SwipeMenuActivity::class.java),
+        ItemModel("Type Menu", "demo 7", TypeListActivity::class.java)
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -4,13 +4,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.chauthai.swipereveallayout.SwipeRevealLayout
-import com.chauthai.swipereveallayout.ViewBinderHelper
+import com.codegames.swipereveallayout.SwipeRevealLayout
+import com.codegames.swipereveallayout.ViewBinderHelper
 import com.codegames.simplelist.SimpleConf
+import com.codegames.simplelist.SimpleTypeConf
 import com.codegames.simplelist.util.MyViewHolder
 import com.codegames.simplelist.util.toInt
-import kotlinx.android.synthetic.main.swipe_revieal_layout_same_level.view.*
 import org.apache.commons.lang3.ObjectUtils
 
 
@@ -30,62 +31,99 @@ class SimpleAdapter<T>(
         const val TYPE_FOOTER = -1003
     }
 
-    private fun createItemView(parent: ViewGroup, itemRes: Int, swipeRes: Int?): View {
-        val container = LayoutInflater.from(parent.context)
-            .inflate(
-                if(config.swipeMode == SwipeRevealLayout.MODE_SAME_LEVEL)
-                    com.codegames.simplelist.R.layout.swipe_revieal_layout_same_level
-                else
-                    com.codegames.simplelist.R.layout.swipe_revieal_layout_normal,
-                parent,
-                false
-            ) as SwipeRevealLayout
-        container.dragEdge = config.swipeDragEdge
-        val itemContainer = container.swipe_reveal_layout_main
-        val itemView = LayoutInflater.from(itemContainer.context)
-            .inflate(itemRes, itemContainer, false)
-
-        var lp = itemView.layoutParams
-        if (lp is MarginLayoutParams) {
-            lp.setMargins(0, 0, 0, 0)
+    private fun createParentSize(s: Int): Int {
+        return if (s == ViewGroup.LayoutParams.MATCH_PARENT) {
+            ViewGroup.LayoutParams.MATCH_PARENT
+        } else {
+            ViewGroup.LayoutParams.WRAP_CONTENT
         }
-        itemContainer.layoutParams = lp
-        container.layoutParams = lp
+    }
 
-        itemContainer.addView(itemView, itemView.layoutParams)
+    fun updateItemView(rootView: ViewGroup, itemView: View) {
+        val nw = createParentSize(itemView.layoutParams.width)
+        val nh = createParentSize(itemView.layoutParams.height)
+        if (nw != rootView.layoutParams?.width || nh != rootView.layoutParams?.height) {
+            val p = MarginLayoutParams(itemView.layoutParams)
+            p.setMargins(0, 0, 0, 0)
+            p.width = nw
+            p.height = nh
+            rootView.layoutParams = p
+        }
+    }
+
+    private fun createItemView(parent: ViewGroup, itemRes: Int, swipeRes: Int?): View {
+
+        if (config.swipeLayout == null) {
+            val rootView = LinearLayout(parent.context)
+            rootView.clipToPadding = false
+            rootView.clipChildren = false
+
+            val itemView = LayoutInflater.from(rootView.context)
+                .inflate(itemRes, rootView, false)
+
+            rootView.addView(itemView, itemView.layoutParams)
+
+            rootView.setPadding(
+                config.itemMargin.left,
+                config.itemMargin.top,
+                config.itemMargin.right,
+                config.itemMargin.bottom
+            )
+
+            updateItemView(rootView, itemView)
+
+            return rootView
+        }
+
+        val rootView = SwipeRevealLayout(parent.context)
+        rootView.clipToPadding = false
+        rootView.clipChildren = false
+        rootView.mode = config.swipeMode
+        rootView.dragEdge = config.swipeDragEdge
 
         if (swipeRes != null) {
-            val secondaryContainer = container.swipe_reveal_layout_secondary
-            val secondaryView = LayoutInflater.from(secondaryContainer.context)
-                .inflate(swipeRes, secondaryContainer, false)
+            val swipeView = LayoutInflater.from(rootView.context)
+                .inflate(swipeRes, rootView, false)
 
-            lp = secondaryView.layoutParams
-            if (lp is MarginLayoutParams) {
-                lp.setMargins(0, 0, 0, 0)
-            }
-            secondaryContainer.layoutParams = lp
-
-            secondaryContainer.addView(secondaryView)
+            rootView.addView(swipeView, swipeView.layoutParams)
         }
 
-        return container
+        val itemView = LayoutInflater.from(rootView.context)
+            .inflate(itemRes, rootView, false)
+
+        rootView.addView(itemView, itemView.layoutParams)
+
+        rootView.setupViews()
+
+        rootView.setPadding(
+            config.itemMargin.left,
+            config.itemMargin.top,
+            config.itemMargin.right,
+            config.itemMargin.bottom
+        )
+
+        updateItemView(rootView, itemView)
+
+        return rootView
     }
 
     override fun getItemId(position: Int): Long {
         val p = getItemPosition(position)
-        return config.getItemId?.invoke(p) ?: super.getItemId(p)
+        return config.getItemId?.invoke(p) ?: super.getItemId(position)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int)
             : RecyclerView.ViewHolder {
+
+        val customType = config.typeList.find { it.typeId == viewType }
+
         when (viewType) {
+            customType?.typeId -> {
+                val view = createItemView(parent, customType.layout!!, customType.swipeLayout)
+                return SimpleTypeHolder(view, this, customType)
+            }
             TYPE_ITEM -> {
-                val view = if (config.swipeLayout == null) {
-                    LayoutInflater.from(parent.context)
-                        .inflate(config.itemLayout!!, parent, false)
-                } else {
-                    createItemView(parent, config.itemLayout!!, config.swipeLayout)
-                }
+                val view = createItemView(parent, config.itemLayout!!, config.swipeLayout)
                 return SimpleItemHolder(view, this)
             }
             TYPE_HEADER -> {
@@ -108,7 +146,11 @@ class SimpleAdapter<T>(
             position == 0 && config.headerLayout != null -> TYPE_HEADER
             position == data.size && config.headerLayout == null -> TYPE_FOOTER
             position == data.size + 1 -> TYPE_FOOTER
-            else -> TYPE_ITEM
+            else -> {
+                val item = getItem(position)
+                config.typeList.find { it.isThisType?.invoke(item, position) == true }?.typeId
+                    ?: TYPE_ITEM
+            }
         }
     }
 
@@ -137,8 +179,29 @@ class SimpleAdapter<T>(
         }
     }
 
+    fun handleType(holder: SimpleTypeHolder<T>, position: Int, config: SimpleTypeConf<T>) {
+        val item = getItem(position)
+        if (config.swipeLayout == null) {
+            config.bind?.invoke(holder.rootView, item, position)
+        } else {
+            val rootView = holder.rootView as SwipeRevealLayout
+            viewBinderHelper.bind(
+                rootView,
+                ObjectUtils.identityToString(item)
+            )
+            config.swipeBind?.invoke(holder.swipeView!!, item, position)
+            config.bind?.invoke(holder.itemView, item, position)
+        }
+    }
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (getItemViewType(position)) {
+        val viewType = getItemViewType(position)
+        val customType = config.typeList.find { it.typeId == viewType }
+        when (viewType) {
+            customType?.typeId -> {
+                @Suppress("UNCHECKED_CAST")
+                handleType(holder as SimpleTypeHolder<T>, position, customType)
+            }
             TYPE_ITEM -> {
                 @Suppress("UNCHECKED_CAST")
                 handleItem(holder as SimpleItemHolder<T>, position)
@@ -148,31 +211,31 @@ class SimpleAdapter<T>(
         }
     }
 
-    fun getItemPosition(position: Int): Int {
-        return position - (config.headerLayout != null).toInt()
+    fun getItemPosition(adapterPosition: Int): Int {
+        return adapterPosition - (config.headerLayout != null).toInt()
     }
 
-    fun getAdapterPosition(position: Int): Int {
-        return position + (config.headerLayout != null).toInt()
+    fun getAdapterPosition(itemPosition: Int): Int {
+        return itemPosition + (config.headerLayout != null).toInt()
     }
 
-    fun getItem(position: Int): T {
-        val p = getItemPosition(position)
+    fun getItem(adapterPosition: Int): T {
+        val p = getItemPosition(adapterPosition)
         return data[p]
     }
 
-    fun removeItem(position: Int) {
-        val p = getItemPosition(position)
+    fun removeItem(adapterPosition: Int) {
+        val p = getItemPosition(adapterPosition)
         data.removeAt(p)
-        notifyItemRemoved(position)
+        notifyItemRemoved(adapterPosition)
     }
 
-    fun removeItemRange(positionStart: Int, itemCount: Int) {
-        val ps = getItemPosition(positionStart)
+    fun removeItemRange(adapterPositionStart: Int, itemCount: Int) {
+        val ps = getItemPosition(adapterPositionStart)
         val pe = ps + itemCount
         for (i in ps until pe)
             data.removeAt(i)
-        notifyItemRangeRemoved(positionStart, itemCount)
+        notifyItemRangeRemoved(adapterPositionStart, itemCount)
     }
 
     fun removeAll() {
@@ -180,30 +243,30 @@ class SimpleAdapter<T>(
         removeItemRange(getAdapterPosition(0), data.size)
     }
 
-    fun addItemRange(positionStart: Int, items: Collection<T>) {
-        val ps = getItemPosition(positionStart)
+    fun addItemRange(adapterPositionStart: Int, items: Collection<T>) {
+        val ps = getItemPosition(adapterPositionStart)
         data.addAll(ps, items)
-        notifyItemRangeInserted(positionStart, items.size)
+        notifyItemRangeInserted(adapterPositionStart, items.size)
     }
 
     fun addItemRange(items: Collection<T>) {
         addItemRange(getAdapterPosition(data.size), items)
     }
 
-    fun addItem(position: Int, item: T) {
-        val p = getItemPosition(position)
+    fun addItem(adapterPosition: Int, item: T) {
+        val p = getItemPosition(adapterPosition)
         data.add(p, item)
-        notifyItemInserted(position)
+        notifyItemInserted(adapterPosition)
     }
 
     fun addItem(item: T) {
         addItem(getAdapterPosition(data.lastIndex), item)
     }
 
-    fun setItem(position: Int, item: T) {
-        val p = getItemPosition(position)
+    fun setItem(adapterPosition: Int, item: T) {
+        val p = getItemPosition(adapterPosition)
         data[p] = item
-        notifyItemChanged(position)
+        notifyItemChanged(adapterPosition)
     }
 
     fun replaceAll(items: Collection<T>) {
@@ -211,14 +274,14 @@ class SimpleAdapter<T>(
         addItemRange(items)
     }
 
-    fun swipeItem(position1: Int, position2: Int) {
-        val p1 = getItemPosition(position1)
-        val p2 = getItemPosition(position2)
+    fun swipeItem(adapterPosition1: Int, adapterPosition2: Int) {
+        val p1 = getItemPosition(adapterPosition1)
+        val p2 = getItemPosition(adapterPosition2)
         val t = getItem(p1)
         setItem(p1, getItem(p2))
         setItem(p2, t)
-        notifyItemChanged(position1)
-        notifyItemChanged(position2)
+        notifyItemChanged(adapterPosition1)
+        notifyItemChanged(adapterPosition2)
     }
 
 }
@@ -308,6 +371,52 @@ private fun <T> List<T>.clear() {
 }
 
 @Suppress("unused")
+class SimpleTypeHolder<T>(
+    itemView: View,
+    private val adapter: SimpleAdapter<T>,
+    private val conf: SimpleTypeConf<T>
+) : MyViewHolder(itemView) {
+
+    @Suppress("MemberVisibilityCanBePrivate")
+    fun getItem(position: Int): T {
+        return adapter.getItem(position)
+    }
+
+    val rootView get() = super.itemView as ViewGroup
+
+    val itemView
+        get() = _itemView
+
+    private val _itemView
+        get() = when {
+            adapter.config.swipeLayout != null -> (rootView as? ViewGroup)?.getChildAt(1)!!
+            else -> (rootView as? ViewGroup)?.getChildAt(0)!!
+        }
+
+    val swipeView
+        get() = when {
+            adapter.config.swipeLayout != null -> (rootView as? ViewGroup)?.getChildAt(0)!!
+            else -> null
+        }
+
+    val item get() = getItem(adapterPosition)
+
+    init {
+        conf.holder?.invoke(this)
+        adapter.updateItemView(this.rootView, this._itemView)
+    }
+
+    fun bind(bind: ((view: View, item: T, position: Int) -> Unit)?) {
+        conf.bind = bind
+    }
+
+    fun swipeBind(bind: ((view: View, item: T, position: Int) -> Unit)?) {
+        conf.swipeBind = bind
+    }
+
+}
+
+@Suppress("unused")
 class SimpleItemHolder<T>(
     itemView: View,
     private val adapter: SimpleAdapter<T>
@@ -318,22 +427,28 @@ class SimpleItemHolder<T>(
         return adapter.getItem(position)
     }
 
-    val rootView get() = super.itemView
+    val rootView get() = super.itemView as ViewGroup
 
     val itemView
-        get() = (rootView as? ViewGroup)
-            ?.findViewById<ViewGroup>(com.codegames.simplelist.R.id.swipe_reveal_layout_main)
-            ?.getChildAt(0) ?: rootView
+        get() = _itemView
 
-    val swipeView: View?
-        get() = (rootView as? ViewGroup)
-            ?.findViewById<ViewGroup>(com.codegames.simplelist.R.id.swipe_reveal_layout_secondary)
-            ?.getChildAt(0)
+    private val _itemView
+        get() = when {
+            adapter.config.swipeLayout != null -> (rootView as? ViewGroup)?.getChildAt(1)!!
+            else -> (rootView as? ViewGroup)?.getChildAt(0)!!
+        }
+
+    val swipeView
+        get() = when {
+            adapter.config.swipeLayout != null -> (rootView as? ViewGroup)?.getChildAt(0)!!
+            else -> null
+        }
 
     val item get() = getItem(adapterPosition)
 
     init {
         adapter.config.itemHolder?.invoke(this)
+        adapter.updateItemView(this.rootView, this._itemView)
     }
 
     fun bind(bind: ((view: View, item: T, position: Int) -> Unit)?) {

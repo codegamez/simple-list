@@ -29,8 +29,9 @@ class SwipeMenuActivity : AppCompatActivity() {
     private fun setupList() = recyclerView.simple(items) {
 
         columns = 1
-        itemMargin(16)
 
+        itemMargin(8)
+        padding(8)
         clipToPadding = false
         clipChildren = false
 

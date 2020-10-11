@@ -29,14 +29,13 @@ class HorizontalGridActivity : AppCompatActivity() {
 
     private fun setupList() = recyclerView.simple(items) {
 
-        itemMargin(16)
         rows = 2
 
-        itemHolder(R.layout.item_view_g) {
+        itemMargin(8)
+        padding(8)
+        clipToPadding = false
 
-            itemMargin(1)
-            itemHorizontalMargin(2)
-            itemVerticalMargin(2)
+        itemHolder(R.layout.item_view_g) {
 
             itemView.updateLayoutParams {
                 width = 170 * density

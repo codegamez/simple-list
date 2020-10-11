@@ -4,16 +4,26 @@ import android.content.Context
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import com.chauthai.swipereveallayout.SwipeRevealLayout
-import com.codegames.simplelist.adapter.SimpleFooterHolder
-import com.codegames.simplelist.adapter.SimpleHeaderHolder
-import com.codegames.simplelist.adapter.SimpleItemHolder
-import com.codegames.simplelist.adapter.SimpleAdapter
+import com.codegames.swipereveallayout.SwipeRevealLayout
+import com.codegames.simplelist.adapter.*
+
+class SimpleTypeConf<T> {
+    internal var typeId: Int = 0
+    internal var isThisType: ((item: T, position: Int) -> Boolean)? = null
+    internal var holder: (SimpleTypeHolder<T>.() -> Unit)? = null
+    internal var swipeBind: ((view: View, item: T, position: Int) -> Unit)? = null
+    internal var bind: ((view: View, item: T, position: Int) -> Unit)? = null
+    internal var swipeLayout: Int? = null
+    internal var layout: Int? = null
+    internal var spanSize: Int = 1
+}
 
 @Suppress("MemberVisibilityCanBePrivate", "unused", "PropertyName")
 open class SimpleConf<T>(var context: Context? = null) {
 
-    val SWIPE_MODE_NORMAL= SwipeRevealLayout.MODE_NORMAL
+    internal var typeList = mutableListOf<SimpleTypeConf<T>>()
+
+    val SWIPE_MODE_NORMAL = SwipeRevealLayout.MODE_NORMAL
     val SWIPE_MODE_SAME_LEVEL = SwipeRevealLayout.MODE_SAME_LEVEL
     val SWIPE_DRAG_EDGE_TOP = SwipeRevealLayout.DRAG_EDGE_TOP
     val SWIPE_DRAG_EDGE_RIGHT = SwipeRevealLayout.DRAG_EDGE_RIGHT
@@ -82,9 +92,53 @@ open class SimpleConf<T>(var context: Context? = null) {
     internal var verticalPadding = Rect()
     internal var horizontalPadding = Rect()
 
+    fun createType(id: Long, spanSize: Int = 1, isThisType: (item: T, position: Int) -> Boolean) {
+        this.typeList.find { it.typeId == id.toInt() }
+            ?: SimpleTypeConf<T>().also {
+                it.typeId = id.toInt()
+                it.isThisType = isThisType
+                it.spanSize = spanSize
+                typeList.add(it)
+            }
+    }
+
+    fun typeHolder(
+        typeId: Long,
+        typeLayout: Int,
+        swipeLayout: Int? = null,
+        holder: (SimpleTypeHolder<T>.() -> Unit)?
+    ) {
+        val typeConf = this.typeList.find { it.typeId == typeId.toInt() }
+            ?: throw Throwable("type is not exist: call createType() before typeHolder()")
+        typeConf.layout = typeLayout
+        typeConf.swipeLayout = swipeLayout
+        typeConf.holder = holder
+    }
+
+    fun typeBind(
+        typeId: Long,
+        typeLayout: Int,
+        bind: ((view: View, item: T, position: Int) -> Unit)?
+    ) {
+        val typeConf = this.typeList.find { it.typeId == typeId.toInt() }
+            ?: SimpleTypeConf<T>().also {
+                it.typeId = typeId.toInt()
+                typeList.add(it)
+            }
+        typeConf.layout = typeLayout
+        typeConf.bind = bind
+    }
+
     fun padding(space: Int) {
         verticalPadding(space)
         horizontalPadding(space)
+    }
+
+    fun padding(left: Int, top: Int, right: Int, bottom: Int) {
+        paddingLeft(left)
+        paddingTop(top)
+        paddingRight(right)
+        paddingBottom(bottom)
     }
 
     fun paddingLeft(space: Int) {
@@ -114,19 +168,25 @@ open class SimpleConf<T>(var context: Context? = null) {
     }
 
     fun itemMargin(space: Int) {
-        itemVerticalMargin(space)
-        itemHorizontalMargin(space)
+        itemMargin(space, space, space, space)
+    }
+
+    fun itemMargin(left: Int, top: Int, right: Int, bottom: Int) {
+        itemMargin.left = left * density
+        itemMargin.top = top * density
+        itemMargin.right = right * density
+        itemMargin.bottom = bottom * density
     }
 
     fun itemHorizontalMargin(space: Int) {
-        itemMargin.left = space * density / 2
-        itemMargin.right = space * density / 2
+        itemMargin.left = space * density
+        itemMargin.right = space * density
 
     }
 
     fun itemVerticalMargin(space: Int) {
-        itemMargin.top = space * density / 2
-        itemMargin.bottom = space * density / 2
+        itemMargin.top = space * density
+        itemMargin.bottom = space * density
     }
 
     var clipToPadding: Boolean? = null

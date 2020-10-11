@@ -29,7 +29,9 @@ class VerticalListActivity : AppCompatActivity() {
         // enableDivider = true
         columns = 1
 
-        itemMargin(16)
+        itemMargin(8)
+        padding(8)
+        clipToPadding = false
 
         headerBind(R.layout.header_view) {
             it.hv_tvTitle.text = "Demo 1"

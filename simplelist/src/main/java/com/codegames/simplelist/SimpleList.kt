@@ -4,9 +4,7 @@ package com.codegames.simplelist
 
 import androidx.recyclerview.widget.*
 import com.codegames.simplelist.adapter.SimpleAdapter
-import com.codegames.simplelist.util.SimpleSpaceItemDecoration
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
-import java.lang.Integer.max
 
 // -------------
 
@@ -19,32 +17,12 @@ fun <T> RecyclerView.simple(data: List<T>, config: SimpleConf<T>.() -> Unit) {
 private fun <T> RecyclerView.simpleListInter(
     data: List<T>,
     config: SimpleConf<T>.() -> Unit
-) {
+): SimpleAdapter<T> {
     val c = SimpleConf<T>(context)
     c.mAdapter = SimpleAdapter(data, c)
     config(c)
 
-    // item margin
-    if (c.itemMargin.left != 0
-        || c.itemMargin.top != 0
-        || c.itemMargin.right != 0
-        || c.itemMargin.bottom != 0
-    ) {
-        addItemDecoration(
-            SimpleSpaceItemDecoration(
-                left = c.itemMargin.left,
-                top = c.itemMargin.top,
-                right = c.itemMargin.right,
-                bottom = c.itemMargin.bottom,
-                isEqual = true,
-                columns = c.columns,
-                rows = c.rows,
-                verticalOuter = true,
-                horizontalOuter = true,
-                config = c
-            )
-        )
-    }
+    c.typeList = c.typeList.filter { it.layout !== null }.toMutableList()
 
     setPadding(
         c.padding.left,
@@ -76,13 +54,14 @@ private fun <T> RecyclerView.simpleListInter(
         // make header and footer full width
         layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
-                return when (adapter?.getItemViewType(position)) {
-                    SimpleAdapter.TYPE_HEADER -> max(c.columns, c.rows)
-                    SimpleAdapter.TYPE_FOOTER -> max(c.columns, c.rows)
-                    else -> 1
+                return when (val type = adapter?.getItemViewType(position)) {
+                    SimpleAdapter.TYPE_HEADER -> c.columns.coerceAtLeast(c.rows)
+                    SimpleAdapter.TYPE_FOOTER -> c.columns.coerceAtLeast(c.rows)
+                    else -> c.typeList.find { it.typeId == type }?.spanSize ?: 1
                 }
             }
         }
+
     }
     // horizontal view
     else if (c.rows == 1) {
@@ -118,4 +97,6 @@ private fun <T> RecyclerView.simpleListInter(
     this.adapter = c.mAdapter
 
     c.context = null
+
+    return c.mAdapter!!
 }

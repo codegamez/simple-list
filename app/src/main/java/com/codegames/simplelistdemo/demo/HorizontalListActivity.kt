@@ -30,8 +30,11 @@ class HorizontalListActivity : AppCompatActivity() {
 
     private fun setupList() = recyclerView.simple(items) {
 
-        itemMargin(16)
         rows = 1
+
+        itemMargin(8)
+        padding(8)
+        clipToPadding = false
 
         itemHolder(R.layout.item_view_g) {
 
