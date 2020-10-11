@@ -12,7 +12,7 @@ add the following lines to your app module build.gradle
 
 ```gradle
 dependencies {
-    implementation 'com.codegames:simplelist:0.17'
+    implementation 'com.codegames:simplelist:0.300'
 }
 ```
 
