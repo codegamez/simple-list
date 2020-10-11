@@ -12,7 +12,7 @@ add the following lines to your app module build.gradle
 
 ```gradle
 dependencies {
-    implementation 'com.codegames:simplelist:0.17'
+    implementation 'com.codegames:simplelist:0.20'
 }
 ```
 
@@ -30,8 +30,11 @@ For see a demo you can clone this project, build and run it
 ```kotlin
 recyclerView.simple(items) { // call this function on your recycle view and put your dataset
     columns = 1 // a list with one column and many rows
-    itemMargin(16) // margin for every items (dp)
-
+    
+    itemMargin(8) // margin for every items (dp)
+    padding(8) // padding of recyclerView (dp)
+    clipToPadding = false
+    
     // set a header on top of list view that will scroll with other items
     headerBind(R.layout.header_view) {
         // bind header view with dataset
@@ -70,8 +73,11 @@ recyclerView.simple(items) { // call this function on your recycle view and put 
 ```kotlin
 recyclerView.simple(items) {
     rows = 1 // a list with one row and many columns
-    itemMargin(16)
-
+    
+    itemMargin(8)
+    padding(8)
+    clipToPadding = false
+    
     itemHolder(R.layout.item_view_g) {
         itemView.updateLayoutParams {
             width = 170 * density
@@ -109,7 +115,9 @@ recyclerView.simple(items) {
     // or
     rows = 2 // a grid with 2 rows and many columns
     
-    itemMargin(16)
+    itemMargin(8)
+    padding(8)
+    clipToPadding = false
     
     headerBind(R.layout.header_view) {
         // bind header view
@@ -153,8 +161,9 @@ recyclerView.simple(items) {
 ```kotlin
 recyclerView.simple(items) {
     columns = 1
-    itemMargin(16)
-
+    
+    itemMargin(8)
+    padding(8)
     clipToPadding = false
     clipChildren = false
 
@@ -324,11 +333,11 @@ you cand bind inside footer holder with `bind() { view, item, position -> }`. th
 
 **`clipChildren`** : equivalent of recyclerView.clipChildren
 
-**`itemMargin(space)`** : space between two items (dp)
+**`itemMargin(space)`** : top and bottom and left and right margin of every item (dp)
 
-**`itemHorizontalMargin(space)`** : space between two items horizontal (dp)
+**`itemHorizontalMargin(space)`** : left and right margin of every item (dp)
 
-**`itemVerticalMargin(space)`** : space between two items vertical (dp)
+**`itemVerticalMargin(space)`** : top and bottom margin of every item (dp)
  
 ---
 
