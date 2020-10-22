@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.updateLayoutParams
+import com.codegames.simplelist.SimpleConf
 import com.codegames.simplelist.simple
 import com.codegames.simplelistdemo.*
 import kotlinx.android.synthetic.main.activity_all.*
@@ -36,7 +37,14 @@ class HorizontalListActivity : AppCompatActivity() {
         padding(8)
         clipToPadding = false
 
+        recyclerView.setHasFixedSize(true)
+
         itemHolder(R.layout.item_view_g) {
+
+            enterAnim(SimpleConf.ITEM_ANIM_SLIDE_IN) {
+                duration = 300
+                direction = SimpleConf.DIR_TOP_TO_BOTTOM
+            }
 
             itemView.updateLayoutParams {
                 width = 170 * density

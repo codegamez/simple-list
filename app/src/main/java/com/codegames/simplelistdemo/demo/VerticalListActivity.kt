@@ -3,8 +3,12 @@ package com.codegames.simplelistdemo.demo
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.codegames.simplelist.simple
-import com.codegames.simplelistdemo.*
+import com.codegames.simplelistdemo.ItemModel
+import com.codegames.simplelistdemo.R
+import com.codegames.simplelistdemo.fetchData
+import com.codegames.simplelistdemo.toast
 import kotlinx.android.synthetic.main.activity_all.*
 import kotlinx.android.synthetic.main.footer_view.view.*
 import kotlinx.android.synthetic.main.header_view.view.*
@@ -26,12 +30,13 @@ class VerticalListActivity : AppCompatActivity() {
 
     private fun setupList() = recyclerView.simple(items) {
 
-        // enableDivider = true
         columns = 1
 
         itemMargin(8)
         padding(8)
         clipToPadding = false
+
+        recyclerView.setHasFixedSize(true)
 
         headerBind(R.layout.header_view) {
             it.hv_tvTitle.text = "Demo 1"
@@ -46,6 +51,12 @@ class VerticalListActivity : AppCompatActivity() {
 
             itemView.ivv_btnAction2.setOnClickListener {
                 toast("Item $adapterPosition action 2 clicked")
+                item.number++
+                adapter.notifyItemChanged(adapterPosition, 10)
+            }
+
+            bind(10) { v, item, _ ->
+                v.isVisible = item.number % 2 == 0
             }
 
             bind { v, item, _ ->

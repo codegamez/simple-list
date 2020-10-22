@@ -46,5 +46,6 @@ class ItemModel(
     val subtitile: String,
     val body: String,
     val imageRes: Int,
-    val color: Int
+    val color: Int,
+    var number: Int = 0
 )

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.updateLayoutParams
+import com.codegames.simplelist.SimpleConf
 import com.codegames.simplelist.simple
 import com.codegames.simplelistdemo.*
 import kotlinx.android.synthetic.main.activity_all.*
@@ -35,7 +36,14 @@ class HorizontalGridActivity : AppCompatActivity() {
         padding(8)
         clipToPadding = false
 
+        recyclerView.setHasFixedSize(true)
+
         itemHolder(R.layout.item_view_g) {
+
+            enterAnim(SimpleConf.ITEM_ANIM_FADE_IN) {
+                duration = 500
+                delay = 150
+            }
 
             itemView.updateLayoutParams {
                 width = 170 * density

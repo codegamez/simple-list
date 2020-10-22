@@ -6,6 +6,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.codegames.swipereveallayout.SwipeRevealLayout
 import com.codegames.simplelist.adapter.*
+import com.codegames.simplelist.anim.SimpleItemAnimatorConfig
 
 class SimpleTypeConf<T> {
     internal var typeId: Int = 0
@@ -16,6 +17,8 @@ class SimpleTypeConf<T> {
     internal var swipeLayout: Int? = null
     internal var layout: Int? = null
     internal var spanSize: Int = 1
+    internal var enterAnimType: Int? = null
+    internal var enterAnimConfig: (SimpleItemAnimatorConfig.() -> Unit)? = null
 }
 
 @Suppress("MemberVisibilityCanBePrivate", "unused", "PropertyName")
@@ -40,6 +43,15 @@ open class SimpleConf<T>(var context: Context? = null) {
         const val VERTICAL = RecyclerView.VERTICAL
         const val HORIZONTAL = RecyclerView.HORIZONTAL
         const val GRID = 13
+
+        const val ITEM_ANIM_FADE_IN = 1
+        const val ITEM_ANIM_SLIDE_IN = 2
+
+        const val DIR_LEFT_TO_RIGHT = 1
+        const val DIR_RIGHT_TO_LEFT = 2
+        const val DIR_TOP_TO_BOTTOM = 3
+        const val DIR_BOTTOM_TO_TOP = 4
+
     }
 
     var swipeDragEdge = SwipeRevealLayout.DRAG_EDGE_RIGHT
@@ -54,8 +66,8 @@ open class SimpleConf<T>(var context: Context? = null) {
     internal var headerLayout: Int? = null
     internal var footerLayout: Int? = null
 
-    internal var swipeBind: ((view: View, item: T, position: Int) -> Unit)? = null
-    internal var itemBind: ((view: View, item: T, position: Int) -> Unit)? = null
+    internal var swipeBind = HashMap<Int, ((view: View, item: T, position: Int) -> Unit)?>()
+    internal var itemBind = HashMap<Int, ((view: View, item: T, position: Int) -> Unit)?>()
     internal var headerBind: ((view: View) -> Unit)? = null
     internal var footerBind: ((view: View) -> Unit)? = null
 
@@ -224,18 +236,20 @@ open class SimpleConf<T>(var context: Context? = null) {
 
     fun itemBind(
         itemLayout: Int,
+        payload: Int? = null,
         bind: ((view: View, item: T, position: Int) -> Unit)?
     ) {
         this.itemLayout = itemLayout
-        this.itemBind = bind
+        this.itemBind[payload ?: SimpleAdapter.PAYLOAD_ALL] = bind
     }
 
     fun swipeBind(
         swipeLayout: Int,
+        payload: Int? = null,
         bind: ((view: View, item: T, position: Int) -> Unit)?
     ) {
         this.swipeLayout = swipeLayout
-        this.swipeBind = bind
+        this.swipeBind[payload ?: SimpleAdapter.PAYLOAD_ALL] = bind
     }
 
     fun headerBind(

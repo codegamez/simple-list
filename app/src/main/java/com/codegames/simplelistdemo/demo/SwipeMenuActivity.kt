@@ -3,6 +3,7 @@ package com.codegames.simplelistdemo.demo
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.codegames.simplelist.SimpleConf
 import com.codegames.simplelist.simple
 import com.codegames.simplelistdemo.ItemModel
 import com.codegames.simplelistdemo.R
@@ -35,7 +36,14 @@ class SwipeMenuActivity : AppCompatActivity() {
         clipToPadding = false
         clipChildren = false
 
+        recyclerView.setHasFixedSize(true)
+
         itemHolder(R.layout.item_view_h, R.layout.menu_view_h) {
+
+            enterAnim(SimpleConf.ITEM_ANIM_SLIDE_IN) {
+                duration = 300
+                direction = SimpleConf.DIR_RIGHT_TO_LEFT
+            }
 
             bind { v, item, _ ->
                 v.ivh_tvTitle.text = item.title
