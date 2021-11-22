@@ -2,6 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.kezong.fat-aar'
+apply plugin: 'maven-publish'
 
 android {
     defaultPublishConfig 'release' // todo: comment for developing
@@ -10,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 29
-        versionCode 8
-        versionName "0.310"
+        versionCode 9
+        versionName "0.320"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
@@ -65,32 +66,15 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
 }
 
-ext {
-    bintrayRepo = 'simple-list'
-    bintrayName = 'simple-list'
-
-    libraryName = 'codegames'
-
-    publishedGroupId = 'com.codegames'
-    artifact = 'simplelist'
-    libraryVersion = android.defaultConfig.versionName
-
-    libraryDescription = 'simple recyclerview setup for android with kotlin dsl'
-    siteUrl = 'https://github.com/shahab-yousefi/simple-list'
-    gitUrl = 'https://github.com/shahab-yousefi/simple-list.git'
-
-    developerId = 'codegames'
-    developerName = 'Shahab Yousefi'
-    developerEmail = 'shahab_yousefi@live.com'
-
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.codegames'
+                artifactId = 'simplelist'
+                version = android.defaultConfig.versionName
+            }
+        }
+    }
 }
-
-tasks.withType(Javadoc).all {
-    enabled = false
-}
-
-apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
-apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
