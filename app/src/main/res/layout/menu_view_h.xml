@@ -15,7 +15,7 @@
         android:layout_height="48dp"
         android:layout_gravity="center"
         android:layout_marginEnd="24dp"
-        android:tint="@android:color/holo_red_light"
+        app:tint="@android:color/holo_red_light"
         android:src="@drawable/ic_baseline_delete_24" />
 
     <ImageView
@@ -23,7 +23,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="center"
-        android:tint="@android:color/holo_purple"
+        app:tint="@android:color/holo_purple"
         android:src="@drawable/ic_baseline_message_24" />
 
 </LinearLayout>
