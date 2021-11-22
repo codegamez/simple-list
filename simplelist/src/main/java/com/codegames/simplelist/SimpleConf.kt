@@ -33,7 +33,7 @@ open class SimpleConf<T>(var context: Context? = null) {
     val SWIPE_DRAG_EDGE_BOTTOM = SwipeRevealLayout.DRAG_EDGE_BOTTOM
     val SWIPE_DRAG_EDGE_LEFT = SwipeRevealLayout.DRAG_EDGE_LEFT
 
-    private val density get() = context?.resources?.displayMetrics?.density?.toInt() ?: 1
+    private val density get() = context?.resources?.displayMetrics?.density ?: 1F
 
     internal var mAdapter: SimpleAdapter<T>? = null
 
@@ -154,19 +154,19 @@ open class SimpleConf<T>(var context: Context? = null) {
     }
 
     fun paddingLeft(space: Int) {
-        padding.left = space * density
+        padding.left = (space * density).toInt()
     }
 
     fun paddingTop(space: Int) {
-        padding.top = space * density
+        padding.top = (space * density).toInt()
     }
 
     fun paddingRight(space: Int) {
-        padding.right = space * density
+        padding.right = (space * density).toInt()
     }
 
     fun paddingBottom(space: Int) {
-        padding.bottom = space * density
+        padding.bottom = (space * density).toInt()
     }
 
     fun verticalPadding(space: Int) {
@@ -184,21 +184,21 @@ open class SimpleConf<T>(var context: Context? = null) {
     }
 
     fun itemMargin(left: Int, top: Int, right: Int, bottom: Int) {
-        itemMargin.left = left * density
-        itemMargin.top = top * density
-        itemMargin.right = right * density
-        itemMargin.bottom = bottom * density
+        itemMargin.left = (left * density).toInt()
+        itemMargin.top = (top * density).toInt()
+        itemMargin.right = (right * density).toInt()
+        itemMargin.bottom = (bottom * density).toInt()
     }
 
     fun itemHorizontalMargin(space: Int) {
-        itemMargin.left = space * density
-        itemMargin.right = space * density
+        itemMargin.left = (space * density).toInt()
+        itemMargin.right = (space * density).toInt()
 
     }
 
     fun itemVerticalMargin(space: Int) {
-        itemMargin.top = space * density
-        itemMargin.bottom = space * density
+        itemMargin.top = (space * density).toInt()
+        itemMargin.bottom = (space * density).toInt()
     }
 
     var clipToPadding: Boolean? = null
