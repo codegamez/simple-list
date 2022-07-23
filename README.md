@@ -18,7 +18,7 @@ repositories {
 
 ```groovy
 dependencies {
-    implementation 'com.github.codegamez:simple-list:1.0.0'
+    implementation 'com.github.codegamez:simple-list:1.0.2'
 }
 ```
 
