@@ -10,9 +10,15 @@ simple recyclerview setup for android with kotlin dsl
 ## Importing the library
 add the following lines to your app module build.gradle
 
-```gradle
+```groovy
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+```
+
+```groovy
 dependencies {
-    implementation 'com.codegames:simplelist:0.300'
+    implementation 'com.github.codegamez:simple-list:1.0.0'
 }
 ```
 
