@@ -9,6 +9,8 @@ android {
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 32
+        versionCode 5
+        versionName "v1.0.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
     }
@@ -64,7 +66,7 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
-                groupId = 'com.codegames'
+                groupId = 'com.codegames.simplelist'
                 artifactId = 'simplelist'
                 version = android.defaultConfig.versionName
             }
